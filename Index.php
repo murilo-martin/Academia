@@ -43,7 +43,6 @@
                     <div><input type="radio" value="4" name="porSemana" required> 4</input></div>
                     <div><input type="radio" value="5" name="porSemana" required> 5</input></div>
                     <div><input type="radio" value="6" name="porSemana" required> 6</input></div>
-                    <div><input type="radio" value="7" name="porSemana" required> 7</input></div>
                 </div>
                 <div class="title">
                     Qual o parte do seu corpo quer desenvolver mais?
