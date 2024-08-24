@@ -22,7 +22,7 @@
         </div>
     </nav>
     <div class="fundo-baixo">
-        <form action="gerador.php" method="post">
+        <form action="index.php" method="post">
         <div class="infos">
             <div class="title">
                 Qual o seu foco?
@@ -52,8 +52,28 @@
                     <div><input type="radio" value="2" name="focoCorpo" required> INFERIOR</input></div>
                 </div>
                 <div class="alinha">
+                    
                     <input type="submit" value="Gerar" name="geraTreino" class="botaoGera">
                 </div>
+
+                <?php
+                    
+                        session_start();
+
+                        if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['geraTreino'])){
+                            
+                            $porSemana = $_POST['porSemana'];
+                            $focoCorpo = $_POST['focoCorpo'];
+                            $foco = $_POST['foco'];
+                        
+                            $_SESSION['porSemana'] = $porSemana;
+                            $_SESSION['focoCorpo'] = $focoCorpo;
+                            $_SESSION['foco'] = $foco;
+
+                            header('Location: gerador.php');
+
+                        }
+                    ?>
             </div>
           
         </div>
