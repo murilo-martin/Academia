@@ -2,6 +2,8 @@
 
 session_start();
 
+
+
 include "mysqlconecta.php";
 
 $repetições = "0x0";
@@ -59,14 +61,11 @@ function print_treino($ids_exerc, $treino)
         $nome_exerc = mysqli_fetch_array(mysqli_query($conexao, "SELECT nome_exerc FROM exercicios WHERE id_exerc = $id"))[0];
 
         echo "<tr><td class='row'>$nome_exerc<br><p>" . pegaFoco($_SESSION['foco']) . " </p></td></tr>";
-
+        echo "<input type='hidden' value='$id' name='ids_exerc' id='ids_exerc'>";
 
     }
 
-
     mysqli_close($conexao);
-
-    
 
 }
 function treino()
@@ -200,7 +199,7 @@ function treino()
 
             echo "</div>";
             echo "</div>";
-
+ 
         } else if ($porSemana == 4) {
 
             $bicepsFull = array_slice($biceps_ids_exerc, 0, 3);
@@ -229,7 +228,7 @@ function treino()
             $treinoD = array_merge($peito_ids_exerc, $costa_ids_exerc);
             $treinoE = array_merge($biceps_ids_exerc, $triceps_ids_exerc);
 
-            echo '<script>document.getElementById("treinoA").innerHTML = ' . print_treino($treinoA, "treinoA:") . '</script>';
+            print_treino($treinoA, "treinoA:");
             print_treino($treinoB, "treinoB:");
             print_treino($treinoC, "treinoC:");
             print_treino($treinoD, "treinoD:");
@@ -288,8 +287,8 @@ function treino()
             print_treino($treinoB, "treinoB:");
             print_treino($treinoC, "treinoC:");
             print_treino($treinoD, "treinoD:");
-            echo "<div id='treinoE' class='treino'></div>";
-            echo "<div id='treinoF' class='treino'></div>";
+            echo "<div id='treinoE' class='treino'>a</div>";
+            echo "<div id='treinoF' class='treino'>b</div>";
 
         } else if ($porSemana == 5) {
 
@@ -341,6 +340,8 @@ function treino()
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styleGerador.css">
+    <script src="teste.js"></script>
+    
     <title>Document</title>
 </head>
 
@@ -371,16 +372,27 @@ function treino()
             ?>
         </div>
         <div class="areaBotoes">
-            <form action="gerador.php" method="post"><button type="button" value="salvar" name="salvar" class="butao"></form>
+
+        <form action="gerador.php" method="POST">
+            
+            <button id="salvarTreino" type="submit" class="butao" name="salvar">Salvar Treino</button>
+        
+        </form>
+        
             <a href="gerador.php"><input type="submit" value="Gerar Treino Novo" class="butao"></a>
         </div>
     </div>
-
+    
     <footer>
 
-
+   
 
     </footer>
+    
 </body>
 
 </html>
+
+<?php
+
+?>
