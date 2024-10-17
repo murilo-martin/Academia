@@ -1,11 +1,11 @@
-function treinoSalvo() {
-    const hiddenInputs = document.querySelectorAll('#ids_exerc');
-    const valores = {};
-  
-    hiddenInputs.forEach((input) => {
-      valores[input.name] = input.value;
-      
-    });
-  
+function SalvarTreino() {
+    
+  for (let index = 1; index < 9; index++) {
+
+    let id = document.getElementsByTagName('input'+index).value;
+
+    console.log(id)
+  }
+
     
   }

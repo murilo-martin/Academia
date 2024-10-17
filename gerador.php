@@ -50,26 +50,72 @@ function pegaExercicios($area, $qtd_exercicios)
 
     return array_slice($ids_exerc_exerc, 0, $qtd_exercicios);
 }
-
-function print_treino($ids_exerc, $treino)
+function retorna_idsTreino($ids_exerc, $treino)
 {
-
     include "mysqlconecta.php";
 
-    foreach ($ids_exerc as $id) {
+    $array = array();
 
-        $nome_exerc = mysqli_fetch_array(mysqli_query($conexao, "SELECT nome_exerc FROM exercicios WHERE id_exerc = $id"))[0];
-
-        echo "<tr><td class='row'>$nome_exerc<br><p>" . pegaFoco($_SESSION['foco']) . " </p></td></tr>";
-        echo "<input type='hidden' value='$id' name='ids_exerc' id='ids_exerc'>";
-
+    while ($id = mysqli_fetch_array($query)) {
+        array_push($array, array($id[0]));
     }
 
     mysqli_close($conexao);
 
+    return json_encode($array);
+
 }
-function treino()
+function print_treino($ids_exerc, $treino, $dayWeek)
 {
+
+    include "mysqlconecta.php";
+
+    $cont = 0;
+
+    echo "<div id='$dayWeek' class='treino'>";
+    echo "<div class='treinoTop'>";
+    echo "<div class='titleWeek'>$dayWeek</div>";
+    echo "</div>";
+    echo "<div class='treinoBottom'>";
+
+    if ($treino == 'treino') {
+
+        echo "<table>";
+
+        foreach($ids_exerc as $id) {
+
+            $cont++;
+            $nome_exerc = mysqli_fetch_array(mysqli_query($conexao, "SELECT nome_exerc FROM exercicios WHERE id_exerc = $id"))[0];
+
+            echo "<tr><td class='row'> $nome_exerc<br><p>" . pegaFoco($_SESSION['foco']) . " </p></td></tr>";
+
+        }
+    } else {
+
+        echo "<tr>$treino</tr>";
+
+    }
+
+    echo "</table>";
+    echo "</div>";
+    echo "</div>";
+
+    mysqli_close($conexao);
+}
+function pegaFull($arrayTreino, $tamanho){
+
+
+    foreach ($arrayTreino as $id) {
+        
+        $tipoTreino = array_slice($arrayTreino,0, $tamanho);
+ 
+    }
+
+    return $tipoTreino;
+
+}
+
+function treino(){
 
     $peito_ids_exerc = pegaExercicios("peito", 4);
     $biceps_ids_exerc = pegaExercicios("biceps", 4);
@@ -77,181 +123,132 @@ function treino()
     $costa_ids_exerc = pegaExercicios("costas", 4);
     $posterior_ids_exerc = pegaExercicios("posterior", 6);
     $quadriceps_ids_exerc = pegaExercicios("quadriceps", 6);
-    $panturrilha_ids_exerc = pegaExercicios("panturilha", 2);
+    $panturrilha_ids_exerc = pegaExercicios("panturilha", 3);
     $ombros_ids_exerc = pegaExercicios("ombros", 3);
-
-
-    $peitoFull = array_slice($peito_ids_exerc, 0, 2);
-    $bicepsFull = array_slice($biceps_ids_exerc, 0, 2);
-    $tricepsFull = array_slice($biceps_ids_exerc, 0, 2);
-    $costaFull = array_slice($costa_ids_exerc, 0, 2);
-    $quadricepsMenor = array_slice($quadriceps_ids_exerc, 0, 3);
-    $posteriorMenor = array_slice($posterior_ids_exerc, 0, 3);
 
     $porSemana = $_SESSION['porSemana'];
     $areaDeFoco = $_SESSION['focoCorpo'];
 
-    if ($porSemana == 1) { //Full body
 
-        $quadricepsMenor = array_slice($quadriceps_ids_exerc, 0, 1);
-        $posteriorMenor = array_slice($posterior_ids_exerc, 0, 1);
+    if ($porSemana == 1 && $areaDeFoco == 1) { //Full body
+        
+        $exercicios = array_merge(pegaFull($peito_ids_exerc,2),pegaFull($biceps_ids_exerc,1), pegaFull($triceps_ids_exerc, 1), pegaFull($costa_ids_exerc, 2));
 
-        $exercicios = array_merge($peitoFull, $bicepsFull, $tricepsFull, $costaFull, $quadricepsMenor, $posteriorMenor);
+        print_treino("", "Descanso", "Segunda");
+        print_treino("", "Descanso", "Terça");
+        print_treino($exercicios, "treino", "Quarta");
+        print_treino("", "Descanso", "Quinta");
+        print_treino("", "Descanso", "Sexta");
+        print_treino("", "Descanso", "Sabado");
+        print_treino("", "Descanso", "Domingo");
 
-        print_treino($exercicios, "Treino FullBody");
+    }else if($porSemana == 1 && $areaDeFoco == 2){
 
-    } else if ($porSemana == 2) { //Superior e Inferior
+        $exercicios = array_merge(pegaFull($peito_ids_exerc,1),pegaFull($costa_ids_exerc,1),pegaFull($posterior_ids_exerc, 2), pegaFull($quadriceps_ids_exerc,2));
 
-        $quadricepsMenor = array_slice($quadriceps_ids_exerc, 0, 3);
-        $posteriorMenor = array_slice($posterior_ids_exerc, 0, 3);
-        $ombros = array_slice($ombros_ids_exerc, 0, 2);
-        $panturrilha = array_slice($panturrilha_ids_exerc, 0, 2);
+        print_treino("", "Descanso", "Segunda");
+        print_treino("", "Descanso", "Terça");
+        print_treino($exercicios, "treino", "Quarta");
+        print_treino("", "Descanso", "Quinta");
+        print_treino("", "Descanso", "Sexta");
+        print_treino("", "Descanso", "Sabado");
+        print_treino("", "Descanso", "Domingo");
 
-        $exerciciosSup = array_merge($peitoFull, $bicepsFull, $tricepsFull, $costaFull);
-        $exerciciosInf = array_merge($panturrilha, $ombros, $posteriorMenor, $quadricepsMenor);
+    } else if ($porSemana == 2 && $areaDeFoco == 1) { //Superior e Inferior
 
-        print_treino($exerciciosSup, "treino SUP");
-        print_treino($exerciciosInf, "treino INFE");
+        $exerciciosSup = array_merge(pegaFull($peito_ids_exerc, 2),pegaFull($costa_ids_exerc, 2),pegaFull($biceps_ids_exerc, 1), pegaFull($triceps_ids_exerc,1));
+        $exerciciosInf = array_merge(pegaFull($quadriceps_ids_exerc, 1),pegaFull($posterior_ids_exerc, 1), pegaFull($biceps_ids_exerc, 1), pegaFull($triceps_ids_exerc, 1),pegaFull($ombros_ids_exerc,2));
+
+        print_treino("", "Descanso", "Segunda");
+        print_treino($exerciciosSup, "treino", "Terça");
+        print_treino("", "Descanso", "Quarta");
+        print_treino($exerciciosInf, "treino", "Quinta");
+        print_treino("", "Descanso", "Sexta");
+        print_treino("", "Descanso", "Sabado");
+        print_treino("", "Descanso", "Domingo");
+
+    }else if($porSemana == 2 && $areaDeFoco == 2){
+
+        $exerciciosSup = array_merge(pegaFull($peito_ids_exerc, 1),pegaFull($costa_ids_exerc, 1),pegaFull($biceps_ids_exerc, 1), pegaFull($triceps_ids_exerc,1) , pegaFull($quadriceps_ids_exerc, 1), pegaFull($posterior_ids_exerc, 1));
+        $exerciciosInf = array_merge(pegaFull($quadriceps_ids_exerc, 2),pegaFull($posterior_ids_exerc, 2), pegaFull($ombros_ids_exerc,2));
+
+        print_treino("", "Descanso", "Segunda");
+        print_treino($exerciciosSup, "treino", "Terça");
+        print_treino("", "Descanso", "Quarta");
+        print_treino($exerciciosInf, "treino", "Quinta");
+        print_treino("", "Descanso", "Sexta");
+        print_treino("", "Descanso", "Sabado");
+        print_treino("", "Descanso", "Domingo");
 
     }
     if ($porSemana > 2 && $areaDeFoco == 1) { // Mais de duas vezes por semana e Foco no Superior
 
         if ($porSemana == 3) {
 
-            $bicepsFull = array_slice($biceps_ids_exerc, 0, 3);
-            $tricepsFull = array_slice($triceps_ids_exerc, 0, 3);
+            $treinoA = array_merge($peito_ids_exerc, pegaFull($triceps_ids_exerc, 3));
+            $treinoB = array_merge($costa_ids_exerc, pegaFull($biceps_ids_exerc,3));
+            $treinoC = array_merge(pegaFull($posterior_ids_exerc,3), pegaFull($quadriceps_ids_exerc,3));
 
-            $treinoA = array_merge($peito_ids_exerc, $tricepsFull);
-            $treinoB = array_merge($costa_ids_exerc, $bicepsFull);
-            $treinoC = array_merge($posteriorMenor, $quadricepsMenor);
 
-            echo "<div id='Segunda' class='treino'>";
-            echo "<div class='treinoTop'>";
-            echo "<div class='titleWeek'>Segunda</div>";
-            echo "</div>";
-            echo "<div class='treinoBottom'>";
-            echo "<table>";
-            print_treino($treinoA, "treinoA:");
-            echo "</table>";
-            echo "</div>";
-            echo "</div>";
+            print_treino($treinoA, "treino", "Segunda");
+            print_treino("", "Descanso", "Terça");
+            print_treino($treinoB, "treino", "Quarta");
+            print_treino("", "Descanso", "Quinta");
+            print_treino($treinoC, "treino", "Sexta");
+            print_treino("", "Descanso", "Sabado");
+            print_treino("", "Descanso", "Domingo");
 
-            echo "<div id='Terca' class='treino'>";
-            echo "<div class='treinoTop'>";
-            echo "<div class='titleWeek'>Terça</div>";
-            echo "</div>";
-            echo "<div class='treinoBottom'>";
-            echo 'Descanso';
-            echo "</div>";
-            echo "</div>";
-
-            echo "<div id='Quarta' class='treino'>";
-            echo "<div class='treinoTop'>";
-            echo "<div class='titleWeek'>Quarta</div>";
-            echo "</div>";
-            echo "<div class='treinoBottom'>";
-            echo "<table>";
-            echo print_treino($treinoB, "treinoB:");
-            echo "</table>";
-            echo "</div>";
-            echo "</div>";
-
-            echo "<div id='Quinta' class='treino'>";
-            echo "<div class='treinoTop'>";
-            echo "<div class='titleWeek'>Quinta</div>";
-            echo "</div>";
-            echo "<div class='treinoBottom'>";
-
-            echo 'Descanso';
-
-            echo "</div>";
-
-            echo "</div>";
-            echo "<div id='Sexta' class='treino'>";
-            echo "<div class='treinoTop'>";
-            echo "<div class='titleWeek'>Sexta</div>";
-            echo "</div>";
-            echo "<div class='treinoBottom'>";
-            echo "<table>";
-            echo print_treino($treinoC, "treinoC:");
-            echo "</table>";
-            echo "</div>";
-
-            echo "</div>";
-            echo "<div id='Sabado' class='treino'>";
-            echo "<div class='treinoTop'>";
-            echo "<div class='titleWeek'>Sabádo</div>";
-            echo "</div>";
-            echo "<div class='treinoBottom'>";
-
-            echo 'Descanso';
-
-            echo "</div>";
-            echo "</div>";
-
-            echo "<div id='Domingo' class='treino'>";
-            echo "<div class='treinoTop'>";
-            echo "<div class='titleWeek'>Domingo</div>";
-            echo "</div>";
-            echo "<div class='treinoBottom'>";
-
-            echo 'Descanso';
-
-            echo "</div>";
-            echo "</div>";
- 
+            
         } else if ($porSemana == 4) {
 
-            $bicepsFull = array_slice($biceps_ids_exerc, 0, 3);
-            $tricepsFull = array_slice($triceps_ids_exerc, 0, 3);
-
-            $treinoA = array_merge($peito_ids_exerc, $tricepsFull);
-            $treinoB = array_merge($costa_ids_exerc, $bicepsFull);
-            $treinoC = array_merge($posteriorMenor, $quadricepsMenor);
+            $treinoA = array_merge($peito_ids_exerc,pegaFull($triceps_ids_exerc, 3));
+            $treinoB = array_merge($costa_ids_exerc, pegaFull($biceps_ids_exerc,3));
+            $treinoC = array_merge(pegaFull($posterior_ids_exerc,3), pegaFull($quadriceps_ids_exerc,3));
             $treinoD = array_merge($peito_ids_exerc, $costa_ids_exerc);
 
-            print_treino($treinoA, "treinoA:");
-            print_treino($treinoB, "treinoB:");
-            print_treino($treinoC, "treinoC:");
-            print_treino($treinoD, "treinoD:");
-            echo "<div id='treinoE' class='treino'></div>";
-            echo "<div id='treinoF' class='treino'></div>";
+
+            print_treino($treinoA, "treino", "Segunda");
+            print_treino($treinoB, "treino", "Terça");
+            print_treino("", "Descanso", "Quarta");
+            print_treino($treinoC, "treino", "Quinta");
+            print_treino($treinoD, "treino", "Sexta");
+            print_treino("", "Descanso", "Sabado");
+            print_treino("", "Descanso", "Domingo");
 
         } else if ($porSemana == 5) {
 
-            $bicepsFull = array_slice($biceps_ids_exerc, 0, 3);
-            $tricepsFull = array_slice($triceps_ids_exerc, 0, 3);
-
-            $treinoA = array_merge($peito_ids_exerc, $tricepsFull);
-            $treinoB = array_merge($costa_ids_exerc, $bicepsFull);
-            $treinoC = array_merge($posteriorMenor, $quadricepsMenor);
+            $treinoA = array_merge($peito_ids_exerc, pegaFull($triceps_ids_exerc, 3));
+            $treinoB = array_merge($costa_ids_exerc, pegaFull($biceps_ids_exerc,3));
+            $treinoC = array_merge(pegaFull($posterior_ids_exerc,3), pegaFull($quadriceps_ids_exerc,3));
             $treinoD = array_merge($peito_ids_exerc, $costa_ids_exerc);
             $treinoE = array_merge($biceps_ids_exerc, $triceps_ids_exerc);
 
-            print_treino($treinoA, "treinoA:");
-            print_treino($treinoB, "treinoB:");
-            print_treino($treinoC, "treinoC:");
-            print_treino($treinoD, "treinoD:");
-            print_treino($treinoE, "treinoE:");
-            echo "<div id='treinoF' class='treino'></div>";
+            print_treino($treinoA, "treino", "Sabado");
+            print_treino($treinoB, "treino", "Terça");
+            print_treino($treinoC, "treino", "Quarta");
+            print_treino($treinoD, "treino", "Quinta");
+            print_treino($treinoE, "treino", "Sexta");
+            print_treino("", "Descanso", "Sabado");
+            print_treino("", "Descanso", "Domingo");
 
         } else if ($porSemana == 6) {
 
             $bicepsFull = array_slice($biceps_ids_exerc, 0, 3);
             $tricepsFull = array_slice($triceps_ids_exerc, 0, 3);
 
-            $treinoA = array_merge($peito_ids_exerc, $tricepsFull);
-            $treinoB = array_merge($costa_ids_exerc, $bicepsFull);
-            $treinoC = array_merge($posteriorMenor, $quadricepsMenor);
+            $treinoA = array_merge($peito_ids_exerc, pegaFull($triceps_ids_exerc, 3));
+            $treinoB = array_merge($costa_ids_exerc, pegaFull($biceps_ids_exerc,3));
+            $treinoC = array_merge(pegaFull($posterior_ids_exerc,3), pegaFull($quadriceps_ids_exerc,3));
             $treinoD = array_merge($peito_ids_exerc, $costa_ids_exerc);
             $treinoE = array_merge($biceps_ids_exerc, $triceps_ids_exerc);
 
-            print_treino($treinoA, "treinoA:");
-            print_treino($treinoB, "treinoB:");
-            print_treino($treinoC, "treinoC:");
-            print_treino($treinoD, "treinoD:");
-            print_treino($treinoE, "treinoE:");
-            echo "<div id='treinoF' class='treino'> cardio 60 minutos</div>";
+            print_treino($treinoA, "treino", "Segunda");
+            print_treino($treinoB, "treino", "Terça");
+            print_treino($treinoC, "treino", "Quarta");
+            print_treino($treinoD, "treino", "Quinta");
+            print_treino($treinoE, "treino", "Sexta");
+            print_treino("", "30 minutos de cardio", "Sabado");
+            print_treino("", "Descanso", "Domingo");
 
         }
 
@@ -260,7 +257,7 @@ function treino()
 
         $ombros = array_slice($ombros_ids_exerc, 0, 2);
 
-        $pernaFull = array_merge($posteriorMenor, $quadricepsMenor, $ombros);
+        $pernaFull = array_merge(pegaFull($posterior_ids_exerc,3), pegaFull($quadriceps_ids_exerc,3), pegaFull($ombros_ids_exerc, 2));
 
         if ($porSemana == 3) {
 
@@ -268,63 +265,68 @@ function treino()
             $treinoB = array_merge($posterior_ids_exerc);
             $treinoC = array_merge($quadriceps_ids_exerc);
 
-            print_treino($treinoA, "treinoA:");
-            print_treino($treinoB, "treinoB:");
-            print_treino($treinoC, "treinoC:");
-            echo "<div id='treinoD' class='treino'></div>";
-            echo "<div id='treinoE' class='treino'></div>";
-            echo "<div id='treinoF' class='treino'></div>";
+            print_treino($treinoA, "treino", "Segunda");
+            print_treino("", "Descanso", "Terça");
+            print_treino($treinoB, "treino", "Quarta");
+            print_treino("", "Descanso", "Quinta");
+            print_treino($treinoC, "treino", "Sexta");
+            print_treino("", "Descanso", "Sabado");
+            print_treino("", "Descanso", "Domingo");
+            
 
             //feito1
         } else if ($porSemana == 4) {
 
-            $treinoA = array_merge($peito_ids_exerc, $costaFull);
+            $treinoA = array_merge($peito_ids_exerc, pegaFull($costa_ids_exerc, 3));
             $treinoB = array_merge($posterior_ids_exerc, $panturrilha_ids_exerc);
             $treinoC = array_merge($quadriceps_ids_exerc, $panturrilha_ids_exerc);
             $treinoD = array_merge($triceps_ids_exerc, $biceps_ids_exerc);
 
-            print_treino($treinoA, "treinoA:");
-            print_treino($treinoB, "treinoB:");
-            print_treino($treinoC, "treinoC:");
-            print_treino($treinoD, "treinoD:");
-            echo "<div id='treinoE' class='treino'>a</div>";
-            echo "<div id='treinoF' class='treino'>b</div>";
+            print_treino($treinoA, "treino", "Segunda");
+            print_treino($treinoB, "treino", "Terça");
+            print_treino("", "Descanso", "Quarta");
+            print_treino($treinoC, "treino", "Quinta");
+            print_treino($treinoD, "treino", "Sexta");
+            print_treino("", "Descanso", "Sabado");
+            print_treino("", "Descanso", "Domingo");
 
         } else if ($porSemana == 5) {
 
             $bicepsFull = array_slice($biceps_ids_exerc, 0, 3);
             $tricepsFull = array_slice($triceps_ids_exerc, 0, 3);
 
-            $treinoA = array_merge($peito_ids_exerc, $tricepsFull);
-            $treinoB = array_merge($costa_ids_exerc, $bicepsFull);
+            $treinoA = array_merge($peito_ids_exerc, pegaFull($biceps_ids_exerc, 3));
+            $treinoB = array_merge($costa_ids_exerc, pegaFull($triceps_ids_exerc, 3));
             $treinoC = array_merge($posterior_ids_exerc, $panturrilha_ids_exerc);
             $treinoD = array_merge($quadriceps_ids_exerc, $panturrilha_ids_exerc);
             $treinoE = array_merge($pernaFull);
 
-            print_treino($treinoA, "treinoA:");
-            print_treino($treinoB, "treinoB:");
-            print_treino($treinoC, "treinoC:");
-            print_treino($treinoD, "treinoD:");
-            print_treino($treinoE, "treinoE:");
-            echo "<div id='treinoF' class='treino'></div>";
+            print_treino($treinoA, "treino", "Segunda");
+            print_treino($treinoB, "treino", "Terça");
+            print_treino($treinoC, "treino", "Quarta");
+            print_treino($treinoD, "treino", "Quinta");
+            print_treino($treinoE, "treino", "Sexta");
+            print_treino("", "Descanso", "Sabado");
+            print_treino("", "Descanso", "Domingo");
 
         } else if ($porSemana == 6) {
 
             $bicepsFull = array_slice($biceps_ids_exerc, 0, 3);
             $tricepsFull = array_slice($triceps_ids_exerc, 0, 3);
 
-            $treinoA = array_merge($peito_ids_exerc, $tricepsFull);
-            $treinoB = array_merge($costa_ids_exerc, $bicepsFull);
+            $treinoA = array_merge($peito_ids_exerc, pegaFull($triceps_ids_exerc, 3));
+            $treinoB = array_merge($costa_ids_exerc, pegaFull($biceps_ids_exerc, 3));
             $treinoC = array_merge($posterior_ids_exerc, $panturrilha_ids_exerc);
             $treinoD = array_merge($quadriceps_ids_exerc, $panturrilha_ids_exerc);
             $treinoE = array_merge($pernaFull);
 
-            print_treino($treinoA, "treinoA:");
-            print_treino($treinoB, "treinoB:");
-            print_treino($treinoC, "treinoC:");
-            print_treino($treinoD, "treinoD:");
-            print_treino($treinoE, "treinoE:");
-            echo "<div id='treinoF' class='treino'>Cardio 60 minutos</div>";
+            print_treino($treinoA, "treino", "Segunda");
+            print_treino($treinoB, "treino", "Terça");
+            print_treino($treinoC, "treino", "Quarta");
+            print_treino($treinoD, "treino", "Quinta");
+            print_treino($treinoE, "treino", "Sexta");
+            print_treino("", "30 minutos de cardio", "Sabado");
+            print_treino("", "Descanso", "Domingo");
 
         }
 
@@ -341,7 +343,7 @@ function treino()
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styleGerador.css">
     <script src="teste.js"></script>
-    
+
     <title>Document</title>
 </head>
 
@@ -360,39 +362,36 @@ function treino()
     </nav>
     <?php
 
-        echo "<input type='hidden' id='treino' name='treino' value=''>";
+    echo "<input type='hidden' id='treino' name='treino' value=''>";
     ?>
 
     <div class="areaTreino-center">
         <div class="areaTreino">
             <?php
 
-                echo treino();
+            echo treino();
 
             ?>
         </div>
         <div class="areaBotoes">
 
-        <form action="gerador.php" method="POST">
-            
-            <button id="salvarTreino" type="submit" class="butao" name="salvar">Salvar Treino</button>
-        
-        </form>
-        
+            <form action="gerador.php" method="POST">
+
+                <button id="salvarTreino" type="button" class="butao" name="salvar"
+                    onclick="SalvarTreino()">Salvar Treino</button>
+
+            </form>
+
             <a href="gerador.php"><input type="submit" value="Gerar Treino Novo" class="butao"></a>
         </div>
     </div>
-    
+
     <footer>
 
-   
+
 
     </footer>
-    
+
 </body>
 
 </html>
-
-<?php
-
-?>
